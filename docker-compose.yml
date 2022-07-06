@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+    php-fpm:
+        build:
+            context: ./infra/dockerfiles/php-fpm
+            args:
+                - PUID=${PHP_FPM_PUID:-1000}
+                - PGID=${PHP_FPM_PGID:-1000}
+        container_name: php-fpm
+        working_dir: /var/www/
+        volumes:
+            - ./src:/var/www
+        networks:
+            - app-network
+    nginx:
+        image: nginx:alpine
+        container_name: php-nginx
+        ports:
+            - 8000:80
+        volumes:
+            - ./src:/var/www
+            - ./infra/dockerfiles/nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - app-network
+networks:
+    app-network:
+        driver: bridge
